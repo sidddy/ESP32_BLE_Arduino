@@ -41,13 +41,13 @@ public:
 	uint16_t    getHandle();
 	BLEUUID     getUUID();
 	std::string readValue(esp_gatt_auth_req_t auth = ESP_GATT_AUTH_REQ_NONE);
-	uint8_t     readUInt8(void);
-	uint16_t    readUInt16(void);
-	uint32_t    readUInt32(void);
+	uint8_t     readUInt8(esp_gatt_auth_req_t auth = ESP_GATT_AUTH_REQ_NONE);
+	uint16_t    readUInt16(esp_gatt_auth_req_t auth = ESP_GATT_AUTH_REQ_NONE);
+	uint32_t    readUInt32(esp_gatt_auth_req_t auth = ESP_GATT_AUTH_REQ_NONE);
 	void        registerForNotify(void (*notifyCallback)(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify));
 	void        writeValue(uint8_t* data, size_t length, bool response = false, esp_gatt_auth_req_t auth = ESP_GATT_AUTH_REQ_NONE);
-	void        writeValue(std::string newValue, bool response = false);
-	void        writeValue(uint8_t newValue, bool response = false);
+	void        writeValue(std::string newValue, bool response = false, esp_gatt_auth_req_t auth = ESP_GATT_AUTH_REQ_NONE);
+	void        writeValue(uint8_t newValue, bool response = false, esp_gatt_auth_req_t auth = ESP_GATT_AUTH_REQ_NONE);
 	std::string toString(void);
 
 private:
