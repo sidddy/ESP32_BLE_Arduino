@@ -391,8 +391,8 @@ BLEUUID BLERemoteCharacteristic::getUUID() {
  * @brief Read an unsigned 16 bit value
  * @return The unsigned 16 bit value.
  */
-uint16_t BLERemoteCharacteristic::readUInt16(void) {
-	std::string value = readValue();
+uint16_t BLERemoteCharacteristic::readUInt16(esp_gatt_auth_req_t auth) {
+	std::string value = readValue(auth);
 	if (value.length() >= 2) {
 		return *(uint16_t*)(value.data());
 	}
@@ -404,8 +404,8 @@ uint16_t BLERemoteCharacteristic::readUInt16(void) {
  * @brief Read an unsigned 32 bit value.
  * @return the unsigned 32 bit value.
  */
-uint32_t BLERemoteCharacteristic::readUInt32(void) {
-	std::string value = readValue();
+uint32_t BLERemoteCharacteristic::readUInt32(esp_gatt_auth_req_t auth) {
+	std::string value = readValue(auth);
 	if (value.length() >= 4) {
 		return *(uint32_t*)(value.data());
 	}
@@ -417,8 +417,8 @@ uint32_t BLERemoteCharacteristic::readUInt32(void) {
  * @brief Read a byte value
  * @return The value as a byte
  */
-uint8_t BLERemoteCharacteristic::readUInt8(void) {
-	std::string value = readValue();
+uint8_t BLERemoteCharacteristic::readUInt8(esp_gatt_auth_req_t auth) {
+	std::string value = readValue(auth);
 	if (value.length() >= 1) {
 		return (uint8_t)value[0];
 	}
@@ -430,7 +430,7 @@ uint8_t BLERemoteCharacteristic::readUInt8(void) {
  * @brief Read the value of the remote characteristic.
  * @return The value of the remote characteristic.
  */
-std::string BLERemoteCharacteristic::readValue() {
+std::string BLERemoteCharacteristic::readValue(esp_gatt_auth_req_t auth) {
 	ESP_LOGD(LOG_TAG, ">> readValue(): uuid: %s, handle: %d 0x%.2x", getUUID().toString().c_str(), getHandle(), getHandle());
 
 	// Check to see that we are connected.
@@ -448,7 +448,7 @@ std::string BLERemoteCharacteristic::readValue() {
 		m_pRemoteService->getClient()->getGattcIf(),
 		m_pRemoteService->getClient()->getConnId(),    // The connection ID to the BLE server
 		getHandle(),                                   // The handle of this characteristic
-		ESP_GATT_AUTH_REQ_NONE);                       // Security
+		auth);                       // Security
 
 	if (errRc != ESP_OK) {
 		ESP_LOGE(LOG_TAG, "esp_ble_gattc_read_char: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
@@ -547,7 +547,7 @@ std::string BLERemoteCharacteristic::toString() {
  * @param [in] response Do we expect a response?
  * @return N/A.
  */
-void BLERemoteCharacteristic::writeValue(std::string newValue, bool response) {
+void BLERemoteCharacteristic::writeValue(std::string newValue, bool response, esp_gatt_auth_req_t auth) {
 	ESP_LOGD(LOG_TAG, ">> writeValue(), length: %d", newValue.length());
 
 	// Check to see that we are connected.
@@ -566,7 +566,7 @@ void BLERemoteCharacteristic::writeValue(std::string newValue, bool response) {
 		newValue.length(),
 		(uint8_t*)newValue.data(),
 		response?ESP_GATT_WRITE_TYPE_RSP:ESP_GATT_WRITE_TYPE_NO_RSP,
-		ESP_GATT_AUTH_REQ_NONE
+		auth
 	);
 
 	if (errRc != ESP_OK) {
@@ -588,8 +588,8 @@ void BLERemoteCharacteristic::writeValue(std::string newValue, bool response) {
  * @param [in] response Whether we require a response from the write.
  * @return N/A.
  */
-void BLERemoteCharacteristic::writeValue(uint8_t newValue, bool response) {
-	writeValue(std::string(reinterpret_cast<char*>(&newValue), 1), response);
+void BLERemoteCharacteristic::writeValue(uint8_t newValue, bool response, esp_gatt_auth_req_t auth) {
+	writeValue(std::string(reinterpret_cast<char*>(&newValue), 1), response, auth);
 } // writeValue
 
 
@@ -599,8 +599,8 @@ void BLERemoteCharacteristic::writeValue(uint8_t newValue, bool response) {
  * @param [in] length The length of the data in the data buffer.
  * @param [in] response Whether we require a response from the write.
  */
-void BLERemoteCharacteristic::writeValue(uint8_t* data, size_t length, bool response) {
-	writeValue(std::string((char *)data, length), response);
+void BLERemoteCharacteristic::writeValue(uint8_t* data, size_t length, bool response, esp_gatt_auth_req_t auth) {
+	writeValue(std::string((char *)data, length), response, auth);
 } // writeValue
 
 #endif /* CONFIG_BT_ENABLED */
